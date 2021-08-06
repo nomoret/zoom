@@ -1,10 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { SocketIoAdapter } from './adapters/socket-io.adapter';
 
 declare const module: any;
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
