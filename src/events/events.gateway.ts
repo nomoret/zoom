@@ -16,12 +16,17 @@ export class EventsGateway
 {
   private logger = new Logger('EventsGateway');
 
+  private sockets = new Map<string, Socket>();
+
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: string): void {
-    this.server.emit('message', message + ' from server');
+    this.sockets.forEach((client) => {
+      client.send(message + ' from server');
+    });
+    // this.server.emit('message', message + ' from server');
   }
 
   afterInit(server: Server) {
@@ -30,9 +35,11 @@ export class EventsGateway
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log('connect', client.id);
+    this.sockets.set(client.id, client);
   }
 
   handleDisconnect(client: Socket) {
     this.logger.log('disconnect', client.id);
+    this.sockets.delete(client.id);
   }
 }

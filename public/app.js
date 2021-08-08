@@ -1,3 +1,5 @@
+const messageList = document.querySelector('ul');
+const messageForm = document.querySelector('form');
 const socket = io('http://localhost:3000');
 
 socket.on('connect', () => {
@@ -15,4 +17,11 @@ socket.on('exception', (data) => {
 });
 socket.on('disconnect', () => {
   console.log('Disconnected from Server ❌');
+});
+
+messageForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = messageForm.querySelector('input');
+  socket.send(input.value);
+  input.value = '';
 });
