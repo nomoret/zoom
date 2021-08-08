@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -9,6 +10,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+
+interface IMessage {
+  type?: string;
+  payload: string;
+}
 
 @WebSocketGateway()
 export class EventsGateway
@@ -21,12 +27,37 @@ export class EventsGateway
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: string): void {
-    this.sockets.forEach((client) => {
-      client.send(message + ' from server');
+  @SubscribeMessage('enter_room')
+  enterRoom(
+    @MessageBody() roomName: string,
+    @ConnectedSocket() client: Socket,
+  ): string {
+    client.onAny((event) => {
+      console.log(`Socket Event:${event}`);
     });
-    // this.server.emit('message', message + ' from server');
+
+    client.join(roomName);
+    client.to(roomName).emit('welcome');
+    return 'ok';
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(
+    @MessageBody() message: IMessage,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    console.log(message);
+
+    switch (message.type) {
+      case 'message':
+        this.sockets.forEach((client) => {
+          client.send(message.payload);
+        });
+      case 'nickname':
+        console.log(message.payload);
+      default:
+        break;
+    }
   }
 
   afterInit(server: Server) {
@@ -34,8 +65,9 @@ export class EventsGateway
   }
 
   handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log('connect', client.id);
+    this.logger.log('connect', client.id, client);
     this.sockets.set(client.id, client);
+    client.emit('hello', client.nsp.name);
   }
 
   handleDisconnect(client: Socket) {

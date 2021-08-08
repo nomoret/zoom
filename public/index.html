@@ -9,11 +9,20 @@
   <body>
     <header><h1>Zoom</h1></header>
     <main>
-      <ul></ul>
-      <form action="">
-        <input type="text" placeholder="write a msg" />
-        <button>Send</button>
-      </form>
+      <div id="welcome">
+        <form>
+          <input type="text" placeholder="room name" required />
+          <button>Enter Room</button>
+        </form>
+      </div>
+      <div id="room">
+        <h3></h3>
+        <ul></ul>
+        <form id="message">
+          <input type="text" placeholder="write a msg" />
+          <button>Send</button>
+        </form>
+      </div>
     </main>
     <script src="./socket.io.js"></script>
     <script src="./app.js"></script>

@@ -1,17 +1,43 @@
-const messageList = document.querySelector('ul');
-const messageForm = document.querySelector('form');
 const socket = io('http://localhost:3000');
+
+const welcome = document.querySelector('#welcome');
+const welcomeForm = welcome.querySelector('form');
+const room = document.getElementById('room');
+
+let roomName = '';
+
+function init() {
+  room.hidden = true;
+}
+
+function addMessage(message) {
+  const ul = room.querySelector('ul');
+  const li = document.createElement('li');
+  li.innerText = message;
+  ul.append(li);
+}
+
+function showRoom() {
+  console.log('enter');
+  welcome.hidden = true;
+  room.hidden = false;
+  const h3 = room.querySelector('h3');
+  h3.innerText = roomName;
+}
+
+init();
 
 socket.on('connect', () => {
   console.log('Connected to Server ✅');
-  socket.emit('message', '안녕하세요');
 });
-socket.on('message', (data) => {
-  console.log('message', data);
+socket.on('message', (message) => {
+  addMessage(message);
 });
-socket.on('events', (data) => {
-  console.log('event', data);
+
+socket.on('welcome', () => {
+  addMessage('Someone joined');
 });
+
 socket.on('exception', (data) => {
   console.log('event', data);
 });
@@ -19,9 +45,10 @@ socket.on('disconnect', () => {
   console.log('Disconnected from Server ❌');
 });
 
-messageForm.addEventListener('submit', (e) => {
+welcomeForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const input = messageForm.querySelector('input');
-  socket.send(input.value);
+  const input = welcomeForm.querySelector('input');
+  socket.emit('enter_room', input.value, showRoom);
+  roomName = input.value;
   input.value = '';
 });
