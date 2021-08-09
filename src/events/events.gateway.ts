@@ -38,26 +38,22 @@ export class EventsGateway
 
     client.join(roomName);
     client.to(roomName).emit('welcome');
+    console.log(client.rooms);
     return 'ok';
+  }
+
+  @SubscribeMessage('disconnecting')
+  leaveRoom(@ConnectedSocket() client: Socket): void {
+    client.rooms.forEach((room) => client.to(room).emit('bye'));
   }
 
   @SubscribeMessage('message')
   handleMessage(
-    @MessageBody() message: IMessage,
+    @MessageBody() [message, roomName]: [string, string],
     @ConnectedSocket() client: Socket,
-  ): void {
-    console.log(message);
-
-    switch (message.type) {
-      case 'message':
-        this.sockets.forEach((client) => {
-          client.send(message.payload);
-        });
-      case 'nickname':
-        console.log(message.payload);
-      default:
-        break;
-    }
+  ): any {
+    client.to(roomName).emit('message', message);
+    return message;
   }
 
   afterInit(server: Server) {
