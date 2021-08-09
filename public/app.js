@@ -17,9 +17,16 @@ function addMessage(message) {
   ul.append(li);
 }
 
+function handleNickNameSubmit(event) {
+  event.preventDefault();
+  const input = room.querySelector('#name input');
+  socket.emit('nickname', input.value);
+  input.value = '';
+}
+
 function handleMessageSubmit(event) {
   event.preventDefault();
-  const input = room.querySelector('input');
+  const input = room.querySelector('#message input');
   socket.emit('message', input.value, roomName, (res) => {
     addMessage(`You: ${res}`);
   });
@@ -33,8 +40,11 @@ function showRoom() {
   const h3 = room.querySelector('h3');
   h3.innerText = roomName;
 
-  const form = room.querySelector('form');
-  form.addEventListener('submit', handleMessageSubmit);
+  const nameForm = room.querySelector('#name');
+  nameForm.addEventListener('submit', handleNickNameSubmit);
+
+  const messageForm = room.querySelector('#message');
+  messageForm.addEventListener('submit', handleMessageSubmit);
 }
 
 init();
@@ -44,12 +54,12 @@ socket.on('connect', () => {
 });
 socket.on('message', addMessage);
 
-socket.on('welcome', () => {
-  addMessage('Someone joined');
+socket.on('welcome', (user) => {
+  addMessage(`${user} joined`);
 });
 
-socket.on('bye', () => {
-  addMessage('Someone left');
+socket.on('bye', (user) => {
+  addMessage(`${user} left`);
 });
 
 socket.on('exception', (data) => {

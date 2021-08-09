@@ -37,7 +37,7 @@ export class EventsGateway
     });
 
     client.join(roomName);
-    client.to(roomName).emit('welcome');
+    client.to(roomName).emit('welcome', client['nickname']);
     console.log(client.rooms);
     return 'ok';
   }
@@ -51,9 +51,17 @@ export class EventsGateway
   handleMessage(
     @MessageBody() [message, roomName]: [string, string],
     @ConnectedSocket() client: Socket,
-  ): any {
-    client.to(roomName).emit('message', message);
+  ): string {
+    client.to(roomName).emit('message', `${client['nickname']}: ${message}`);
     return message;
+  }
+
+  @SubscribeMessage('nickname')
+  setNickName(
+    @MessageBody() nickname: string,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    client['nickname'] = nickname;
   }
 
   afterInit(server: Server) {
@@ -63,6 +71,7 @@ export class EventsGateway
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log('connect', client.id, client);
     this.sockets.set(client.id, client);
+    client['nickname'] = 'anonymous';
     client.emit('hello', client.nsp.name);
   }
 
