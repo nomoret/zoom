@@ -10,12 +10,21 @@ export class SocketIoAdapter extends IoAdapter {
     port: number,
     options?: ServerOptions & { namespace?: string; server?: any },
   ): any {
-    options.cors = {
-      origin: process.env.CLIENT_CORS_ORIGIN || true,
-      credentials: true,
-      methods: ['GET', 'POST'],
+    options = {
+      ...options,
+      cors: {
+        origin: process.env.CLIENT_CORS_ORIGIN || true,
+        credentials: true,
+        methods: ['GET', 'POST'],
+      },
+      allowEIO3: true,
     };
-    options.allowEIO3 = true;
+    // options.cors = {
+    //   origin: process.env.CLIENT_CORS_ORIGIN || true,
+    //   credentials: true,
+    //   methods: ['GET', 'POST'],
+    // };
+    // options.allowEIO3 = true;
     return super.createIOServer(port, options);
   }
 }

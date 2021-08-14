@@ -11,11 +11,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-interface IMessage {
-  type?: string;
-  payload: string;
-}
-
 @WebSocketGateway()
 export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -32,19 +27,12 @@ export class EventsGateway
     @MessageBody() roomName: string,
     @ConnectedSocket() client: Socket,
   ): string {
-    client.onAny((event) => {
-      console.log(`Socket Event:${event}`);
-    });
-
     client.join(roomName);
-    client.to(roomName).emit('welcome', client['nickname']);
-    console.log(client.rooms);
+    client
+      .to(roomName)
+      .emit('welcome', client['nickname'], this.countRoom(roomName));
+    this.server.sockets.emit('room_change', this.publicRooms());
     return 'ok';
-  }
-
-  @SubscribeMessage('disconnecting')
-  leaveRoom(@ConnectedSocket() client: Socket): void {
-    client.rooms.forEach((room) => client.to(room).emit('bye'));
   }
 
   @SubscribeMessage('message')
@@ -60,23 +48,60 @@ export class EventsGateway
   setNickName(
     @MessageBody() nickname: string,
     @ConnectedSocket() client: Socket,
-  ): void {
+  ): string {
     client['nickname'] = nickname;
+
+    return nickname;
   }
 
   afterInit(server: Server) {
     this.logger.log('after Init', server);
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(@ConnectedSocket() client: Socket) {
     this.logger.log('connect', client.id, client);
     this.sockets.set(client.id, client);
+
+    client.onAny((event) => {
+      this.logger.verbose(`Socket Event:${event}`);
+    });
+
     client['nickname'] = 'anonymous';
     client.emit('hello', client.nsp.name);
+    client.emit('room_change', this.publicRooms());
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
     this.logger.log('disconnect', client.id);
     this.sockets.delete(client.id);
+    console.log(client['nickname']);
+    console.log(client.rooms);
+    client.rooms.forEach((room) =>
+      client.to(room).emit('bye', client['nickname']),
+    );
+    // client.broadcast.emit('bye', client['nickname']);
+    client.disconnect();
+  }
+
+  private publicRooms() {
+    const {
+      sockets: {
+        adapter: { sids, rooms },
+      },
+    } = this.server;
+
+    console.log(rooms);
+    const publicRooms = [];
+    rooms.forEach((_, key) => {
+      if (sids.get(key) === undefined) {
+        publicRooms.push(key);
+      }
+    });
+
+    return publicRooms;
+  }
+
+  private countRoom(roomName) {
+    return this.server.sockets.adapter.rooms.get(roomName)?.size;
   }
 }

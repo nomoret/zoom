@@ -1,5 +1,5 @@
 # Zoom
-zoom clone, use nestjs, react
+zoom clone, use nestjs
 
 ## License
 
