@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3000');
+const socket = io('http://localhost:8000');
 
 const welcome = document.querySelector('#welcome');
 const welcomeForm = welcome.querySelector('form');
