@@ -1,34 +1,53 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from "@emotion/react";
-import { useState } from "react";
+import React, { useState } from "react";
+import useSocket from "../hooks/useSocket";
+import CreateRoomModal from "./CreateRoomModal";
 
-interface Props {}
+interface Props {
+  rooms: any[];
+}
 
-const dummy = [
-  { id: 0, name: "1" },
-  { id: 1, name: "2" },
-  { id: 2, name: "3" },
-  { id: 3, name: "4" },
-];
+function ChatSideBar({ rooms }: Props) {
+  const [show, setShow] = useState(false);
 
-function ChatSideBar({}: Props) {
-  const [rooms, setList] = useState(dummy);
+  const [socket] = useSocket("default");
+
+  const onClick = (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    setShow(true);
+  };
+
+  const onCloseModal = () => {
+    setShow(false);
+  };
+
+  const createRoom = (roomName: string) => {
+    socket?.emit("enter_room", roomName, onCloseModal);
+  };
+
   return (
     <div css={style}>
       <h2>My ChatRooms</h2>
 
-      <button>Create new Room</button>
+      <button onClick={onClick}>Create new Room</button>
 
       <ul>
-        {rooms?.map(({ id, name }, index) => {
+        {rooms?.map((value: any, index: number) => {
           return (
-            <li key={id}>
-              <span>{`Name: ${name} ID: ${id}`}</span>
+            <li key={index}>
+              <span>{`Name: ${value} ID: ${index}`}</span>
             </li>
           );
         })}
       </ul>
+      <CreateRoomModal
+        show={show}
+        onCloseModal={onCloseModal}
+        onCreate={createRoom}
+      />
     </div>
   );
 }

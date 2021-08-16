@@ -20,16 +20,18 @@ function App() {
             </li>
           </ul>
         </nav>
-
         <Switch>
           <Route path="/Chat">
             <Chat />
+          </Route>
+          <Route path="/home">
+            <Home />
           </Route>
           <Route path="/login">
             <Login />
           </Route>
           <Route exact path="/">
-            <Home />
+            <Login />
           </Route>
         </Switch>
       </div>

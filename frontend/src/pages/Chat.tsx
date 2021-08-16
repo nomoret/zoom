@@ -1,7 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
+import { useEffect, useState } from "react";
 import ChatRoom from "../components/ChatRoom";
 import ChatSideBar from "../components/ChatSideBar";
+import useSocket from "../hooks/useSocket";
 
 const dummy = {
   title: "OK Chat Room",
@@ -24,10 +26,37 @@ const dummy = {
 interface Props {}
 
 function Chat({}: Props) {
+  const [messages, setMessages] = useState(dummy.messages);
+  const [rooms, setRooms] = useState([]);
+  const [socket, disconnect] = useSocket("default");
+
+  const showRoomList = (rooms: any) => {
+    console.log("rooms", rooms);
+    setRooms(rooms);
+  };
+
+  const showJoinUser = (user: any, userCount: any) => {
+    console.log("show join user", user, userCount);
+  };
+
+  useEffect(() => {
+    socket?.on("connect", () => {
+      console.log("Connected to Server ✅");
+    });
+
+    socket?.on("room_change", showRoomList);
+
+    socket?.on("welcome", showJoinUser);
+
+    return () => {
+      disconnect();
+    };
+  }, [socket, disconnect]);
+
   return (
     <main css={style}>
-      <ChatSideBar />
-      <ChatRoom {...dummy} />
+      <ChatSideBar rooms={rooms} />
+      <ChatRoom title={dummy.title} messages={messages} />
     </main>
   );
 }
