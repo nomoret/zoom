@@ -2,30 +2,29 @@
 
 import { css } from "@emotion/react";
 import React, { useState } from "react";
-import useSocket from "../hooks/useSocket";
 import CreateRoomModal from "./CreateRoomModal";
 
 interface Props {
   rooms: any[];
+  createRoom: any;
+  joinRoom: any;
 }
 
-function ChatSideBar({ rooms }: Props) {
+function ChatSideBar({ rooms, createRoom, joinRoom }: Props) {
   const [show, setShow] = useState(false);
-
-  const [socket] = useSocket("default");
 
   const onClick = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
     setShow(true);
   };
 
-  const onCloseModal = () => {
-    setShow(false);
+  const onCreate = (roomName: string) => {
+    createRoom(roomName, onCloseModal);
   };
 
-  const createRoom = (roomName: string) => {
-    socket?.emit("enter_room", roomName, onCloseModal);
+  const onCloseModal = () => {
+    console.log("close modal");
+    setShow(false);
   };
 
   return (
@@ -37,7 +36,7 @@ function ChatSideBar({ rooms }: Props) {
       <ul>
         {rooms?.map((value: any, index: number) => {
           return (
-            <li key={index}>
+            <li key={index} onClick={joinRoom(value)}>
               <span>{`Name: ${value} ID: ${index}`}</span>
             </li>
           );
@@ -46,7 +45,7 @@ function ChatSideBar({ rooms }: Props) {
       <CreateRoomModal
         show={show}
         onCloseModal={onCloseModal}
-        onCreate={createRoom}
+        onCreate={onCreate}
       />
     </div>
   );

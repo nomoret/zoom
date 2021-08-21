@@ -1,6 +1,4 @@
-interface Props {}
-
-function Home({}: Props) {
+function Home() {
   return <div>Home</div>;
 }
 
