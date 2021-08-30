@@ -4,6 +4,9 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as ormconfig from './ormconfig';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -12,6 +15,8 @@ import { EventsModule } from './events/events.module';
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api*', '/socket*'],
     }),
+    TypeOrmModule.forRoot(ormconfig),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
