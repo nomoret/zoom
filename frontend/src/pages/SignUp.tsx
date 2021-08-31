@@ -1,22 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { useState } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
 
-function Login() {
-  const [login, setLogin] = useState(false);
-
-  if (login) {
-    return <Redirect to="/chat" />;
-  }
-
+function SignUp() {
   return (
     <div css={style}>
       <main>
-        <AuthForm isLogIn callback={setLogin} />
-        <Link to="/signup">
-          <button>sign up</button>
+        <AuthForm callback={() => {}} />
+        <Link to="/login">
+          <button>Log In</button>
         </Link>
       </main>
     </div>
@@ -32,4 +25,4 @@ const style = css`
   align-items: center;
 `;
 
-export default Login;
+export default SignUp;

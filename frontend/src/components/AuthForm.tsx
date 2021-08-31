@@ -1,22 +1,43 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 interface Props {
+  isLogIn?: boolean;
   callback: any;
 }
 
-function LoginForm({ callback }: Props) {
+function AuthForm({ isLogIn, callback }: Props) {
   const [state, setState] = useState({
     username: "",
     password: "",
     passwordConfirm: "",
   });
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
-    const { name, value } = e.target;
+  const [error, setError] = useState<string>();
 
+  const validatePassword = useCallback(
+    (name: string, value: string, state: any) => {
+      if (name === "password") {
+        if (state.passwordConfirm !== value) {
+          setError("missmatch password");
+        } else {
+          setError("");
+        }
+      } else if (name === "passwordConfirm") {
+        if (state.password !== value) {
+          setError("missmatch password");
+        } else {
+          setError("");
+        }
+      }
+    },
+    []
+  );
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    validatePassword(name, value, state);
     setState({
       ...state,
       [name]: value,
@@ -36,7 +57,19 @@ function LoginForm({ callback }: Props) {
       <input type="text" name="username" required onChange={onChange} />
       <label>Password</label>
       <input type="password" name="password" required onChange={onChange} />
-      <button>Enter</button>
+      {!isLogIn && (
+        <>
+          <label>Password Check</label>
+          <input
+            type="password"
+            name="passwordConfirm"
+            required
+            onChange={onChange}
+          />
+        </>
+      )}
+      <button>{isLogIn ? "Enter" : "Sign Up"} </button>
+      {error && <span>{error}</span>}
     </form>
   );
 }
@@ -74,4 +107,4 @@ const style = css`
     }
   }
 `;
-export default LoginForm;
+export default AuthForm;

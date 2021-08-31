@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Chat from "./pages/Chat";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
           </ul>
         </nav>
         <Switch>
-          <Route path="/Chat">
+          <Route path="/chat">
             <Chat />
           </Route>
           <Route path="/home">
@@ -29,6 +30,9 @@ function App() {
           </Route>
           <Route path="/login">
             <Login />
+          </Route>
+          <Route path="/signup">
+            <SignUp />
           </Route>
           <Route exact path="/">
             <Login />
