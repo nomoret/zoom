@@ -10,6 +10,7 @@ interface Props {
 function AuthForm({ isLogIn, callback }: Props) {
   const [state, setState] = useState({
     username: "",
+    email: "",
     password: "",
     passwordConfirm: "",
   });
@@ -47,7 +48,7 @@ function AuthForm({ isLogIn, callback }: Props) {
     e.preventDefault();
     console.log(e.target);
     if (typeof callback === "function") {
-      callback(true);
+      callback(state);
     }
   };
 
@@ -55,6 +56,12 @@ function AuthForm({ isLogIn, callback }: Props) {
     <form css={style} onSubmit={onSubmit}>
       <label>Username</label>
       <input type="text" name="username" required onChange={onChange} />
+      {!isLogIn && (
+        <>
+          <label>Email</label>
+          <input type="email" name="email" required onChange={onChange} />
+        </>
+      )}
       <label>Password</label>
       <input type="password" name="password" required onChange={onChange} />
       {!isLogIn && (
