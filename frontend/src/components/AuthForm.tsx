@@ -38,7 +38,10 @@ function AuthForm({ isLogIn, callback }: Props) {
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    validatePassword(name, value, state);
+    if (!isLogIn) {
+      validatePassword(name, value, state);
+    }
+
     setState({
       ...state,
       [name]: value,
@@ -54,14 +57,16 @@ function AuthForm({ isLogIn, callback }: Props) {
 
   return (
     <form css={style} onSubmit={onSubmit}>
-      <label>Username</label>
-      <input type="text" name="username" required onChange={onChange} />
       {!isLogIn && (
         <>
-          <label>Email</label>
-          <input type="email" name="email" required onChange={onChange} />
+          <label>Username</label>
+          <input type="text" name="username" required onChange={onChange} />
         </>
       )}
+      <>
+        <label>Email</label>
+        <input type="email" name="email" required onChange={onChange} />
+      </>
       <label>Password</label>
       <input type="password" name="password" required onChange={onChange} />
       {!isLogIn && (

@@ -1,29 +1,37 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link, Redirect } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
 
 function SignUp() {
+  const [login, setLogin] = useState(false);
+
+  const requestSignUp = useCallback(({ username, password, email }: any) => {
+    axios
+      .post(
+        "http://localhost:8000/api/users",
+        {
+          name: username,
+          password,
+          email,
+        },
+        {}
+      )
+      .then((res) => res.data)
+      .then((data) => setLogin(true))
+      .catch(console.error);
+  }, []);
+
+  if (login) {
+    return <Redirect to="/chat" />;
+  }
+
   return (
     <div css={style}>
       <main>
-        <AuthForm
-          callback={({ username, password, email }: any) => {
-            axios
-              .post(
-                "http://localhost:8000/api/users",
-                {
-                  name: username,
-                  password,
-                  email,
-                },
-                {}
-              )
-              .then((res) => console.log(res))
-              .catch(console.error);
-          }}
-        />
+        <AuthForm callback={requestSignUp} />
         <Link to="/login">
           <button>Log In</button>
         </Link>
