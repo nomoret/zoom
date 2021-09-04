@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entity/User';
 import { Repository } from 'typeorm';
@@ -7,11 +7,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+  private logger = new Logger('UserService');
+
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async signUp(createUserDto: CreateUserDto) {
     try {
       const newUser = await this.usersRepository.save(createUserDto);
       return {
@@ -19,12 +21,40 @@ export class UsersService {
         message: 'This action adds a new user',
       };
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error,
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async logIn({
+    name,
+    email,
+    password,
+  }: {
+    name?: string;
+    email?: string;
+    password?: string;
+  }) {
+    try {
+      const findUser = await this.usersRepository.findOne({
+        where: {
+          email,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+        select: ['id', 'name', 'email', 'password'],
+      });
+
+      this.logger.log({ ...findUser });
+
+      if (!findUser) {
+        throw 'not found user';
+      }
+
+      console.log(password, findUser);
+      if (password !== findUser.password) {
+        throw 'mismatch pasword';
+      }
+      return findUser;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
