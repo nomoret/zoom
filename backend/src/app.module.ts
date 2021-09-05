@@ -7,6 +7,7 @@ import { EventsModule } from './events/events.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as ormconfig from './ormconfig';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UsersModule } from './users/users.module';
     }),
     TypeOrmModule.forRoot(ormconfig),
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

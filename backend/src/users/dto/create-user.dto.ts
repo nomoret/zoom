@@ -8,7 +8,7 @@ export class CreateUserDto {
   age: number;
 
   @ApiProperty()
-  email: string;
+  public email: string;
 
   @ApiProperty()
   password: string;

@@ -70,6 +70,15 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
+  async findByEmail(email: string) {
+    return await this.usersRepository.findOne({
+      where: {
+        email,
+      },
+      select: ['id', 'name', 'email', 'password'],
+    });
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }

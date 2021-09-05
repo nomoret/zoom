@@ -6,27 +6,40 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LogInUserDto } from './dto/login-user.dto';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth.guards';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  async signUp(@Body() createUserDto: CreateUserDto) {
+    const user = await this.usersService.findByEmail(createUserDto.email);
+    if (user) {
+      throw new ForbiddenException();
+    }
     return this.usersService.signUp(createUserDto);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('logIn')
   logIn(
     @Body()
     logInUserDto: LogInUserDto,
   ) {
     return this.usersService.logIn(logInUserDto);
+  }
+
+  @Get()
+  logOut() {
+    return 'logout';
   }
 
   @Get()
