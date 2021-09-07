@@ -34,10 +34,10 @@ export class UsersController {
     @Body()
     logInUserDto: LogInUserDto,
   ) {
-    return this.usersService.logIn(logInUserDto);
+    return logInUserDto;
   }
 
-  @Get()
+  @Get('logout')
   logOut() {
     return 'logout';
   }

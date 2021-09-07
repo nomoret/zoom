@@ -4,6 +4,7 @@ import { User } from 'src/entity/User';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -15,44 +16,17 @@ export class UsersService {
 
   async signUp(createUserDto: CreateUserDto) {
     try {
-      const newUser = await this.usersRepository.save(createUserDto);
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
+
+      const user = new User();
+      user.name = createUserDto.name;
+      user.email = createUserDto.email;
+      user.password = hashedPassword;
+      const newUser = await this.usersRepository.save(user);
       return {
         newUser,
         message: 'This action adds a new user',
       };
-    } catch (error) {
-      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  async logIn({
-    name,
-    email,
-    password,
-  }: {
-    name?: string;
-    email?: string;
-    password?: string;
-  }) {
-    try {
-      const findUser = await this.usersRepository.findOne({
-        where: {
-          email,
-        },
-        select: ['id', 'name', 'email', 'password'],
-      });
-
-      this.logger.log({ ...findUser });
-
-      if (!findUser) {
-        throw 'not found user';
-      }
-
-      console.log(password, findUser);
-      if (password !== findUser.password) {
-        throw 'mismatch pasword';
-      }
-      return findUser;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
