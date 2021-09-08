@@ -6,7 +6,7 @@ import { Link, Redirect } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
 
 function Login() {
-  const [login, setLogin] = useState(false);
+  const [login, setLogin] = useState();
   const requestLogIn = ({ username, email, password }: any) => {
     axios
       .post(
@@ -19,7 +19,9 @@ function Login() {
         {}
       )
       .then((res) => res.data)
-      .then((data) => setLogin(true))
+      .then((data) => {
+        setLogin(data);
+      })
       .catch(console.error);
   };
 

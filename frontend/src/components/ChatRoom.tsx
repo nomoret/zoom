@@ -15,10 +15,10 @@ function ChatRoom({ title, messages = [], sendMessage }: Props) {
   const scrollToBottom = (): void => {
     try {
       console.log(listElement);
-      if (listElement?.current) {
-        listElement.current.scrollTo(0, listElement.current.scrollHeight);
-      }
-    } catch {}
+      listElement?.current?.scrollTo(0, listElement.current.scrollHeight);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

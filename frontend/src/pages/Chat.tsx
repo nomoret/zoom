@@ -29,6 +29,7 @@ function Chat() {
 
   const sendMessage = useCallback(
     (msg: any, name = "me", type = "me") => {
+      console.log(socket);
       const updateMessage = {
         name: socket?.id.slice(0, 4),
         msg,
@@ -45,6 +46,7 @@ function Chat() {
 
   const recivedMessage = useCallback(
     (msg: any, name = "me", type = "other") => {
+      console.log(socket);
       const updateMessage = {
         name: socket?.id.slice(0, 4),
         msg,
@@ -85,7 +87,7 @@ function Chat() {
     return () => {
       disconnect();
     };
-  }, [socket, disconnect, showRoomList, showJoinUser]);
+  }, [socket, disconnect]);
 
   return (
     <main css={style}>

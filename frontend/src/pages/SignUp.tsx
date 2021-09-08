@@ -25,7 +25,7 @@ function SignUp() {
   }, []);
 
   if (login) {
-    return <Redirect to="/chat" />;
+    return <Redirect to="/login" />;
   }
 
   return (
