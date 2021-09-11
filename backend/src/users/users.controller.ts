@@ -3,16 +3,16 @@ import {
   Get,
   Post,
   Body,
+  Delete,
   Patch,
   Param,
-  Delete,
+  Request,
   UseGuards,
   ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LogInUserDto } from './dto/login-user.dto';
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guards';
 
 @Controller('users')
@@ -30,11 +30,8 @@ export class UsersController {
 
   @UseGuards(LocalAuthGuard)
   @Post('logIn')
-  logIn(
-    @Body()
-    logInUserDto: LogInUserDto,
-  ) {
-    return logInUserDto;
+  logIn(@Request() req) {
+    return req.user;
   }
 
   @Get('logout')
