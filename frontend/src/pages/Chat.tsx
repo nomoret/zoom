@@ -1,15 +1,20 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useCallback, useEffect, useState } from "react";
+import { Redirect } from "react-router";
+import { useSetMessageListState, useUserState } from "../atoms";
 import ChatRoom from "../components/ChatRoom";
 import ChatSideBar from "../components/ChatSideBar";
 import useSocket from "../hooks/useSocket";
+import { Message } from "../types/message";
 
 function Chat() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const setMessages = useSetMessageListState();
   const [roomName, setRoomName] = useState<string>();
   const [rooms, setRooms] = useState([]);
   const [socket, disconnect] = useSocket("default");
+
+  const [user] = useUserState();
 
   const createRoom = (roomName: string, callBack: any) => {
     socket?.emit("enter_room", roomName, (res: any) => {
@@ -30,8 +35,8 @@ function Chat() {
   const sendMessage = useCallback(
     (msg: any, name = "me", type = "me") => {
       console.log(socket);
-      const updateMessage = {
-        name: socket?.id.slice(0, 4),
+      const updateMessage: Message = {
+        name,
         msg,
         type,
       };
@@ -41,14 +46,14 @@ function Chat() {
         setMessages((prev) => [...prev, updateMessage]);
       });
     },
-    [socket, roomName]
+    [socket, roomName, setMessages]
   );
 
   const recivedMessage = useCallback(
     (msg: any, name = "me", type = "other") => {
-      console.log(socket);
+      console.log("받자", name);
       const updateMessage = {
-        name: socket?.id.slice(0, 4),
+        name,
         msg,
         type,
       };
@@ -58,7 +63,7 @@ function Chat() {
         setMessages((prev) => [...prev, updateMessage]);
       });
     },
-    [socket, roomName]
+    [socket, roomName, setMessages]
   );
 
   const showRoomList = useCallback((rooms: any) => {
@@ -71,7 +76,11 @@ function Chat() {
     sendMessage(`${user} joined`);
   }, []);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (user) {
+      socket?.emit("nickname", user.name);
+    }
+  }, [user?.name]);
 
   useEffect(() => {
     socket?.on("connect", () => {
@@ -89,17 +98,17 @@ function Chat() {
     };
   }, [socket, disconnect]);
 
+  if (!user) {
+    return <Redirect to="/login" />;
+  }
+
   return (
     <main css={style}>
       <ChatSideBar rooms={rooms} createRoom={createRoom} joinRoom={joinRoom} />
       {!roomName ? (
         <div>empty</div>
       ) : (
-        <ChatRoom
-          title={roomName}
-          messages={messages}
-          sendMessage={sendMessage}
-        />
+        <ChatRoom title={roomName} sendMessage={sendMessage} />
       )}
     </main>
   );

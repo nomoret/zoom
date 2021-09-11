@@ -1,12 +1,13 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import axios from "axios";
-import { useState } from "react";
 import { Link, Redirect } from "react-router-dom";
+import { useUserState } from "../atoms";
 import AuthForm from "../components/AuthForm";
 
 function Login() {
-  const [login, setLogin] = useState();
+  const [user, setUser] = useUserState();
+
   const requestLogIn = ({ username, email, password }: any) => {
     axios
       .post(
@@ -20,12 +21,12 @@ function Login() {
       )
       .then((res) => res.data)
       .then((data) => {
-        setLogin(data);
+        setUser(data);
       })
       .catch(console.error);
   };
 
-  if (login) {
+  if (user) {
     return <Redirect to="/chat" />;
   }
 

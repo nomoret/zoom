@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import { useMessageListState, useUserState } from "../atoms";
 
 interface Props {
   title?: string;
@@ -8,8 +9,10 @@ interface Props {
   sendMessage: (message: any) => void;
 }
 
-function ChatRoom({ title, messages = [], sendMessage }: Props) {
+function ChatRoom({ title, sendMessage }: Props) {
   const [message, setMessage] = useState("");
+  const [messageList] = useMessageListState();
+
   const listElement: any = useRef(null);
 
   const scrollToBottom = (): void => {
@@ -19,6 +22,17 @@ function ChatRoom({ title, messages = [], sendMessage }: Props) {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+  };
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("send");
+    sendMessage(message);
+    scrollToBottom();
+    setMessage("");
   };
 
   return (
@@ -32,7 +46,7 @@ function ChatRoom({ title, messages = [], sendMessage }: Props) {
       <div css={content} ref={listElement}>
         <ul>
           <span>Friday, January 11, 2019</span>
-          {messages?.map((message, index) => {
+          {messageList?.map((message, index) => {
             const { name, msg, type } = message;
             if (type === "other") {
               return (
@@ -57,22 +71,11 @@ function ChatRoom({ title, messages = [], sendMessage }: Props) {
           })}
         </ul>
       </div>
-      <form
-        css={chatForm}
-        onSubmit={(e) => {
-          e.preventDefault();
-          console.log("send");
-          sendMessage(message);
-          scrollToBottom();
-          setMessage("");
-        }}
-      >
+      <form css={chatForm} onSubmit={handleOnSubmit}>
         <input
           type="text"
           placeholder="Send message"
-          onChange={(e) => {
-            setMessage(e.target.value);
-          }}
+          onChange={handleOnChange}
           value={message}
         />
         <div>
@@ -168,6 +171,9 @@ const listAlign = {
     display: flex;
     align-items: flex-start;
     margin-bottom: 20px;
+    div {
+      margin-left: 10px;
+    }
   `,
 };
 
