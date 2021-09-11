@@ -40,7 +40,7 @@ export class EventsGateway
     @MessageBody() [message, roomName]: [string, string],
     @ConnectedSocket() client: Socket,
   ): string {
-    client.to(roomName).emit('message', `${client['nickname']}: ${message}`);
+    client.to(roomName).emit('message', message, client['nickname']);
     return message;
   }
 
