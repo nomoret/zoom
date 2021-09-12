@@ -1,30 +1,34 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import axios from "axios";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Link, Redirect } from "react-router-dom";
+import { useUserState } from "../atoms";
 import AuthForm from "../components/AuthForm";
 
 function SignUp() {
-  const [login, setLogin] = useState(false);
+  const [user, setUser] = useUserState();
 
-  const requestSignUp = useCallback(({ username, password, email }: any) => {
-    axios
-      .post(
-        "http://localhost:8000/api/users",
-        {
-          name: username,
-          password,
-          email,
-        },
-        {}
-      )
-      .then((res) => res.data)
-      .then((data) => setLogin(true))
-      .catch(console.error);
-  }, []);
+  const requestSignUp = useCallback(
+    ({ username, password, email }: any) => {
+      axios
+        .post(
+          "http://localhost:8000/api/users",
+          {
+            name: username,
+            password,
+            email,
+          },
+          {}
+        )
+        .then((res) => res.data)
+        .then((data) => setUser(data))
+        .catch(console.error);
+    },
+    [setUser]
+  );
 
-  if (login) {
+  if (user) {
     return <Redirect to="/login" />;
   }
 
