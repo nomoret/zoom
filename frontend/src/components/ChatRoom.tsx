@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React, { useRef, useState } from "react";
-import { useMessageListState, useUserState } from "../atoms";
+import { useMessageListState } from "../atoms/messageListState";
 
 interface Props {
   title?: string;
@@ -157,6 +157,9 @@ const chatForm = css`
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  input {
+    flex-grow: 1;
+  }
 `;
 
 const listAlign = {
