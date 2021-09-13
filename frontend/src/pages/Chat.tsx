@@ -2,7 +2,8 @@
 import { css } from "@emotion/react";
 import { useCallback, useEffect, useState } from "react";
 import { Redirect } from "react-router";
-import { useSetMessageListState, useUserState } from "../atoms";
+import { useSetMessageListState } from "../atoms/messageListState";
+import { useUserState } from "../atoms/userState";
 import ChatRoom from "../components/ChatRoom";
 import ChatSideBar from "../components/ChatSideBar";
 import useSocket from "../hooks/useSocket";

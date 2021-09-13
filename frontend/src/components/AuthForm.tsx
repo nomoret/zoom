@@ -1,13 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
+import axios from "axios";
 import React, { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
+import { useSetUserState } from "../atoms/userState";
 
 interface Props {
   isLogIn?: boolean;
-  callback: any;
 }
 
-function AuthForm({ isLogIn, callback }: Props) {
+function AuthForm({ isLogIn }: Props) {
   const [state, setState] = useState({
     username: "",
     email: "",
@@ -15,22 +17,21 @@ function AuthForm({ isLogIn, callback }: Props) {
     passwordConfirm: "",
   });
 
+  const setUser = useSetUserState();
+
   const [error, setError] = useState<string>();
 
   const validatePassword = useCallback(
     (name: string, value: string, state: any) => {
-      if (name === "password") {
-        if (state.passwordConfirm !== value) {
-          setError("missmatch password");
-        } else {
-          setError("");
-        }
-      } else if (name === "passwordConfirm") {
-        if (state.password !== value) {
-          setError("missmatch password");
-        } else {
-          setError("");
-        }
+      if (!name.startsWith("pass")) {
+        return;
+      }
+
+      const key = name !== "password" ? "password" : "passwordConfirm";
+      if (state[key] !== value) {
+        setError("missmatch password");
+      } else {
+        setError("");
       }
     },
     []
@@ -47,11 +48,23 @@ function AuthForm({ isLogIn, callback }: Props) {
       [name]: value,
     });
   };
-  const onSubmit = (e: React.SyntheticEvent) => {
+
+  const onSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    console.log(e.target);
-    if (typeof callback === "function") {
-      callback(state);
+    const { email, username: name, password } = state;
+
+    const url = isLogIn
+      ? "http://localhost:8000/api/users/logIn"
+      : "http://localhost:8000/api/users";
+
+    try {
+      const data = await axios
+        .post(url, { name, password, email }, {})
+        .then((res) => res.data);
+      setUser(data);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message);
     }
   };
 
@@ -80,8 +93,17 @@ function AuthForm({ isLogIn, callback }: Props) {
           />
         </>
       )}
-      <button>{isLogIn ? "Enter" : "Sign Up"} </button>
+      <button>{isLogIn ? "Enter" : "Agree & Join"} </button>
       {error && <span>{error}</span>}
+      {isLogIn ? (
+        <Link to="/signup">
+          <button>Sign Up</button>
+        </Link>
+      ) : (
+        <Link to="/login">
+          <button>Log In</button>
+        </Link>
+      )}
     </form>
   );
 }
@@ -89,6 +111,8 @@ function AuthForm({ isLogIn, callback }: Props) {
 const style = css`
   display: flex;
   flex-direction: column;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   label {
   }
   input {
