@@ -52,9 +52,10 @@ function ChatSideBar({ rooms, createRoom, joinRoom }: Props) {
 }
 
 const style = css`
-  display: flex;
+  flex: 1;
   flex-direction: column;
   width: 400px;
+  margin-left: 2rem;
   h2 {
   }
   button {

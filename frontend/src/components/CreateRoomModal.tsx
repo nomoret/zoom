@@ -19,6 +19,9 @@ function CreateRoomModal({ show, onCloseModal, onCreate }: Props) {
   };
   return (
     <Modal show={show} onCloseModal={onCloseModal}>
+      <div>
+        <span>Input Room Name</span>
+      </div>
       <form onSubmit={onSubmit}>
         <input type="text" name="roomName" onChange={onChange} autoFocus />
         <button>enter</button>

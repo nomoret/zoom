@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+/** @jsxImportSource @emotion/react */
+import { css } from "@emotion/react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Chat from "./pages/Chat";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -7,20 +9,7 @@ import SignUp from "./pages/SignUp";
 function App() {
   return (
     <Router>
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/chat">Chat</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-          </ul>
-        </nav>
+      <div css={style}>
         <Switch>
           <Route path="/chat">
             <Chat />
@@ -42,5 +31,15 @@ function App() {
     </Router>
   );
 }
+
+const style = css`
+  display: flex;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+`;
 
 export default App;

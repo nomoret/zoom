@@ -106,24 +106,20 @@ function Chat() {
   return (
     <main css={style}>
       <ChatSideBar rooms={rooms} createRoom={createRoom} joinRoom={joinRoom} />
-      {!roomName ? (
-        <div>empty</div>
-      ) : (
-        <ChatRoom title={roomName} sendMessage={sendMessage} />
-      )}
+      <ChatRoom title={roomName} sendMessage={sendMessage} />
     </main>
   );
 }
 
 const style = css`
   display: flex;
-  align-items: center;
   width: 80%;
+  height: 70%;
   margin: 0 auto;
-  justify-content: center;
-  align-items: flex-start;
   box-shadow: 0 18px 36px -18px rgba(0, 0, 0, 0.3),
     0 -12px 36px -8px rgba(0, 0, 0, 0.025);
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 `;
 
 export default Chat;

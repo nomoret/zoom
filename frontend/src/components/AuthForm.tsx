@@ -94,7 +94,6 @@ function AuthForm({ isLogIn }: Props) {
         </>
       )}
       <button>{isLogIn ? "Enter" : "Agree & Join"} </button>
-      {error && <span>{error}</span>}
       {isLogIn ? (
         <Link to="/signup">
           <button>Sign Up</button>
@@ -104,6 +103,7 @@ function AuthForm({ isLogIn }: Props) {
           <button>Log In</button>
         </Link>
       )}
+      {error && <span>{error}</span>}
     </form>
   );
 }

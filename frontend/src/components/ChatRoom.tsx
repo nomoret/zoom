@@ -35,6 +35,14 @@ function ChatRoom({ title, sendMessage }: Props) {
     setMessage("");
   };
 
+  if (!title) {
+    return (
+      <div css={wrapper}>
+        <h2>{`Create & Join the Room`}</h2>
+      </div>
+    );
+  }
+
   return (
     <div css={wrapper}>
       <div css={header}>
