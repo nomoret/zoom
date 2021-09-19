@@ -1,23 +1,59 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useDetailRoomState } from "../atoms/detailRoomState";
 import { useMessageListState } from "../atoms/messageListState";
+import useSocket from "../hooks/useSocket";
+import { Message } from "../types/message";
 
-interface Props {
-  title?: string;
-  messages?: any[];
-  sendMessage: (message: any) => void;
-}
-
-function ChatRoom({ title, sendMessage }: Props) {
+function ChatRoom() {
   const [message, setMessage] = useState("");
-  const [messageList] = useMessageListState();
+  const [count, setCount] = useState(1);
+  const [messageList, setMessageList] = useMessageListState();
+  const [socket] = useSocket("default");
+  const [{ name }] = useDetailRoomState();
+  const roomName = name;
 
   const listElement: any = useRef(null);
 
+  const sendMessage = useCallback(
+    (msg: any, name = "me", type = "me") => {
+      const updateMessage: Message = {
+        name,
+        msg,
+        type,
+      };
+
+      socket?.emit("message", msg, roomName, (res: any) => {
+        console.log(res);
+        setMessageList((prev) => [...prev, updateMessage]);
+      });
+    },
+    [roomName, setMessageList, socket]
+  );
+
+  const recivedMessage = useCallback(
+    (msg: any, name = "me", type = "other") => {
+      const updateMessage = { name, msg, type };
+      socket?.emit("message", msg, roomName, (res: any) => {
+        console.log(res);
+        setMessageList((prev) => [...prev, updateMessage]);
+      });
+    },
+    [roomName, setMessageList, socket]
+  );
+
+  const showJoinUser = useCallback(
+    (user: any, userCount: any) => {
+      console.log("show join user", user, userCount);
+      sendMessage(`${user} joined`);
+      setCount(userCount);
+    },
+    [sendMessage]
+  );
+
   const scrollToBottom = (): void => {
     try {
-      console.log(listElement);
       listElement?.current?.scrollTo(0, listElement.current.scrollHeight);
     } catch (error) {
       console.error(error);
@@ -35,7 +71,16 @@ function ChatRoom({ title, sendMessage }: Props) {
     setMessage("");
   };
 
-  if (!title) {
+  useEffect(() => {
+    socket?.on("message", recivedMessage);
+    socket?.on("welcome", showJoinUser);
+    return () => {
+      socket?.off("message", recivedMessage);
+      socket?.off("welcome", showJoinUser);
+    };
+  }, [socket]);
+
+  if (!roomName) {
     return (
       <div css={wrapper}>
         <h2>{`Create & Join the Room`}</h2>
@@ -47,7 +92,10 @@ function ChatRoom({ title, sendMessage }: Props) {
     <div css={wrapper}>
       <div css={header}>
         <header>
-          <h2>{`${title}`}</h2>
+          <h2>
+            <span>{`${roomName}`}</span>
+            <span>{`  ${count}`}</span>
+          </h2>
           <h3>Description</h3>
         </header>
       </div>
@@ -85,6 +133,7 @@ function ChatRoom({ title, sendMessage }: Props) {
           placeholder="Send message"
           onChange={handleOnChange}
           value={message}
+          required
         />
         <div>
           <i>➕</i>
@@ -116,10 +165,13 @@ const header = css`
   z-index: 2;
   top: 0px;
   width: 100%;
-  padding: 5px 0px;
+  padding: 5px 10px;
   background-color: white;
   box-shadow: 0 18px 36px -18px rgba(0, 0, 0, 0.3),
     0 -12px 36px -8px rgba(0, 0, 0, 0.025);
+  span {
+    flex-grow: 1;
+  }
 `;
 
 const content = css`

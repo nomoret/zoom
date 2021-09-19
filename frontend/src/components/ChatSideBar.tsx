@@ -1,17 +1,44 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from "@emotion/react";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useSetDetailRoomState } from "../atoms/detailRoomState";
+import { useSetMessageListState } from "../atoms/messageListState";
+import { useRoomState } from "../atoms/roomState";
+import useSocket from "../hooks/useSocket";
+import { DetailRoom } from "../types/detailRoom";
 import CreateRoomModal from "./CreateRoomModal";
 
-interface Props {
-  rooms: any[];
-  createRoom: any;
-  joinRoom: any;
-}
-
-function ChatSideBar({ rooms, createRoom, joinRoom }: Props) {
+function ChatSideBar() {
   const [show, setShow] = useState(false);
+  const [socket] = useSocket("default");
+  const setRoom = useSetDetailRoomState();
+  const [rooms, setRooms] = useRoomState();
+  const setMessages = useSetMessageListState();
+
+  const createRoom = (roomName: string, callBack: any) => {
+    socket?.emit("enter_room", roomName, (res: any) => {
+      callBack();
+      setRoom({
+        name: roomName,
+      });
+      setMessages([]);
+    });
+  };
+
+  const joinRoom = (roomName: string) => (e: any) => {
+    socket?.emit("enter_room", roomName, () => {
+      const newRoom: DetailRoom = {
+        name: roomName,
+      };
+      setRoom(newRoom);
+      setMessages([]);
+    });
+  };
+  const showRoomList = useCallback((rooms: any) => {
+    console.log("rooms", rooms);
+    setRooms(rooms);
+  }, []);
 
   const onClick = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -26,6 +53,13 @@ function ChatSideBar({ rooms, createRoom, joinRoom }: Props) {
     console.log("close modal");
     setShow(false);
   };
+
+  useEffect(() => {
+    socket?.on("room_change", showRoomList);
+    return () => {
+      socket?.off("room_change", showRoomList);
+    };
+  }, [socket, showRoomList]);
 
   return (
     <div css={style}>
